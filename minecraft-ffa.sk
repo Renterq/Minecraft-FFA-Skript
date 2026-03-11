@@ -1,0 +1,55 @@
+options:
+    prefix: &8[&c&lFFA&8] &7
+
+command /ffabaslat:
+    permission: op
+    trigger:
+        if {ffa::durum} is true:
+            send "{@prefix}Oyun zaten devam ediyor!" to player
+            stop
+        
+        set {ffa::durum} to true
+        delete {ffa::oyuncular::*}
+        
+        broadcast "{@prefix}&eFFA maçı başlıyor! Son hazırlıklarınızı yapın."
+        
+        loop all players:
+            if loop-player's gamemode is survival or adventure:
+                add loop-player to {ffa::oyuncular::*}
+                set {ffa::kills::%loop-player%} to 0
+                execute console command "/nte player %loop-player% clear" 
+        
+        execute console command "worldborder center 0 0"
+        execute console command "worldborder set 500"
+        broadcast "{@prefix}&cDünya sınırı 500 bloğa ayarlandı. Savaş başlasın!"
+        wait 5 seconds
+        broadcast "{@prefix}&cDünya sınırı daralmaya başlıyor! Daralma süresi: 480 saniye."
+        execute console command "worldborder set 20 480"
+
+on death of player:
+    if {ffa::durum} is true:
+        if {ffa::oyuncular::%victim%} is set:
+            delete {ffa::oyuncular::%victim%}
+            set death message to "" # Varsayılan ölüm mesajını kapat
+            
+            if attacker is a player:
+                add 1 to {ffa::kills::%attacker%}
+                broadcast "{@prefix}&c%attacker%&7, &c%victim% &7adlı oyuncuyu eledi! (&eLeş: %{ffa::kills::%attacker%}%&7)"
+            else:
+                broadcast "{@prefix}&c%victim% &7elendi!"
+            
+            set gamemode of victim to spectator
+            
+            set {_kalan} to size of {ffa::oyuncular::*}
+            if {_kalan} is 1:
+                loop {ffa::oyuncular::*}:
+                    set {_kazanan} to loop-value
+                broadcast "{@prefix}&a&lTEBRİKLER! &e%{_kazanan}% &aFFA maçını kazandı!"
+                set {ffa::durum} to false
+                execute console command "worldborder set 5000" # Maç bitince sınırı sıfırla
+
+on join:
+    if {ffa::durum} is true:
+        if {ffa::oyuncular::%player%} is not set:
+            set gamemode of player to spectator
+            send "{@prefix}&cŞu anda aktif bir FFA maçı var. Oyuna izleyici olarak katılıyorsun." to player
