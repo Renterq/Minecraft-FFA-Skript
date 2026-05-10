@@ -1,4 +1,4 @@
-# Minecraft-FFA-SSkript
+# Minecraft-FFA-Skript
 An automated, dynamic World Border Free-For-All (FFA) minigame system for Minecraft servers using Skript.
 # ⚔️ Minecraft Advanced FFA (Free-For-All) Skript
 *(English description is available below)*
